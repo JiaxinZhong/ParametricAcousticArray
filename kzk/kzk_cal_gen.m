@@ -1,4 +1,4 @@
-% Physical parameters
+%% Physical parameters
 Tc = 20;
 hr = 50;
 c0 = 331.6+0.6*Tc;
@@ -24,7 +24,7 @@ k0 = 2*pi*f0/c0;
 RD0 = k0*a_rad^2/2;
 lD0 = 1/(beta*k0*eps0);
 
-% Numerical parameters
+%% Numerical parameters
 Dsig = 3e-4;
 Dzeta = 2e-2;
 
@@ -40,7 +40,8 @@ xi = zeta * (sig.' +1);
 n = (1:M)';
 f = (1:M).'*fb;
 alpha = cal_absorp_coeff(f, hr, Tc, 101.325);
-Lp = kzk_cal(Dsig,sig_max,Dzeta,zeta_max,N0,N1,N2,M,c1,c2,alpha,RD0,lD0,LP0);
+Lp = kzk_cal(Dsig,sig_max,Dzeta,zeta_max,N0,N1,N2,M,c1,c2,alpha,RD0,...
+	lD0,LP0);
 
 
 for i = 4:M
@@ -56,8 +57,8 @@ plot(sig*RD0, Lp{1}(1,:),'-');
 xlabel('$z$ (m)')
 ylabel('SPL (dB)')
 
-print('-djpeg','xx.jpg', '-r200')
-save('xx.mat','Lp','RD0','sig','f0','N1','N2','N0',...
-    'f1','f2','xi', 'Tc', 'hr', 'rho0', 'a_rad',...
+print(sprintf('%s_cache.jpg', mfilename('fullpath')), '-djpeg', '-r200');
+save('kzk/data/kzk_cal_gen_cache.mat','Lp','RD0','sig','f0','N1','N2',...
+	'N0','f1','f2','xi', 'Tc', 'hr', 'rho0', 'a_rad',...
 	'beta', 'LP0','f','zeta','sig_max','z_max',...
 	'alpha','I','J','Dsig','Dzeta','c0','M','PREF');
