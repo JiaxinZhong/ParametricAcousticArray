@@ -1,12 +1,27 @@
-function [Lp] = kzk_cal(Dsig,sig_max,Dzeta,zeta_max,N0,N1,N2,M,c1,c2,alpha,...
-	RD0,lD0,LP0)
-% =============================================================================
-% FUNCTION 	calculate the nonlienar pressure field based on the kzk equation
-%				using the Implicit Backward Finite Difference
-% -----------------------------------------------------------------------------
+function [Lp] = kzk_cal(Dsig,sig_max,Dzeta,zeta_max,N0,N1,N2,M,c1,c2,...
+	alpha,RD0,lD0,LP0)
+% =========================================================================
+% FUNCTION 	calculate the nonlienar pressure field based on the kzk 
+%			equation using the Implicit Backward Finite Difference
+% REFERENCE 
+%	[1] AANONSEN S I, BARKVE T, NAZE J, et, al. Distortion and harmonic 
+%		generation in the nearfield of a finite amplitude sound beam[J]. 
+%		The Journal of the Acoustical Society of America, 1989, 75(3): 
+%		749–768.
+%	[2] TJOTTA N J, Sigva T, VEFRING E H. Propagation and interaction of 
+%		two collinear finite amplitude sound beams[J]. The Journal of the 
+%		Acoustical Society of America, 1990, 88(6): 2859–2870.
+%	[3]	SMITH G D. Numerical solution of partial differential equations – 
+%		Finite Difference Methods[M]. 3rd ed. Oxford: Oxford University 
+%		Press, 1985.
+%	[4] KAMAKURA T, HAMADA N, AOKI K, et, al. Nonlinearly generated 
+%		spectral components in the nearfield of a directive sound 
+%		source[J]. The Journal of the Acoustical Society of America, 1989,
+%		85(6): 2331–2337.
+% -------------------------------------------------------------------------
 % INPUT
 %	Dsig	- step size in the direction of sigma (axis of the transducer)
-%	sig_max	- maximal size in the direction of sigma (axis of the transducer)
+%	sig_max	- maximal size in the direction of sigma (axis of the trans.)
 %	Dzeta	- step size in the direction of zeta (transverse plane)
 %	zeta_max- maximal size in the direction of zeta
 %	N0		- = f0/fb, where fb is the basic frequency
@@ -19,15 +34,15 @@ function [Lp] = kzk_cal(Dsig,sig_max,Dzeta,zeta_max,N0,N1,N2,M,c1,c2,alpha,...
 %	RD0		- Rayleigh distance
 %	lD0		- shock wave formation distance
 %	LP0		- the dB value of the peak amplitude of the source
-% -----------------------------------------------------------------------------
+% -------------------------------------------------------------------------
 % OUTPUT
 %	Lp		- sound power pressure of the harmonics in dB
-% -----------------------------------------------------------------------------
+% -------------------------------------------------------------------------
 % VERSION INFO
-%	Author					- Jiaxin Zhong
-%	Last modified on		- September 12, 2018
-%	Version number			- 1.0.0.20180912		
-% =============================================================================
+%	Author				- Jiaxin Zhong
+%	Last modified 		- September 12, 2018
+%	Version 			- 1.0.20180918		
+% =========================================================================
 
 I = fix(sig_max/Dsig);
 n = (1:M).'; sig = linspace(0, sig_max, I+1)';

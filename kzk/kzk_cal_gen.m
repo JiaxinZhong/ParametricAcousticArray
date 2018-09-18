@@ -39,7 +39,7 @@ zeta = linspace(0,zeta_max, J+1)';
 xi = zeta * (sig.' +1);
 n = (1:M)';
 f = (1:M).'*fb;
-[~,alpha] = cal_absorp_coeff(f, hr, Tc, 101.325);
+alpha = cal_absorp_coeff(f, hr, Tc, 101.325);
 Lp = kzk_cal(Dsig,sig_max,Dzeta,zeta_max,N0,N1,N2,M,c1,c2,alpha,RD0,lD0,LP0);
 
 

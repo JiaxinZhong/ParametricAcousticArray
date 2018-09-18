@@ -1,7 +1,10 @@
 %% add the subfolders to the path
 addpath(sprintf('%s/absorp',pwd))
+addpath(sprintf('%s/absorp/fig',pwd))
 addpath(sprintf('%s/direct',pwd))
+addpath(sprintf('%s/direct/fig',pwd))
 addpath(sprintf('%s/kzk',pwd))
+addpath(sprintf('%s/kzk/fig',pwd))
 
 %% figure settings
 fig_type = 'normal'; 

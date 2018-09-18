@@ -1,14 +1,14 @@
 %% import the data
 dir_head = 'kzk/data/';
 
-set_num = 1;
+set_num = 2;
 switch set_num
 case 1
 	% set 1 for P0 = 118 dB
 	data = load(strcat(dir_head, 'kzk_cal_gen_fb1k_f160k_a0p1_P0118.mat'));
 case 2
 	% set 2 for P0 = 135 dB
-	data = load(strcat(dir_head, 'kzk_cal_gen_fb4k_f160k_a0p1_P0135.mat'));
+	data = load(strcat(dir_head, 'kzk_cal_gen_fb1k_f160k_a0p1_P0135.mat'));
 end
 
 
