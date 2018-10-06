@@ -5,18 +5,20 @@ c0 = 331.6+0.6*Tc;
 rho0 = 1.2;
 a_rad = 0.1;
 beta = 1.2;
-LP0 = 118;
+LP0 = 128;
 PREF = 20e-6;
 c1 = 1;
 c2 = 1;
-f1 = 60000;
-fb = 4000;
-f2 = f1+fb;
+f1 = 60000; 
+fd = 4500; % difference frequency
+f2 = f1+fd;
+fb = gcd(f1,f2);
 M = fix(f2/fb*2+5);
 P0 = 10^(LP0/20) * PREF;
 v0 = P0/rho0/c0;
 eps0 = v0/c0;
 f0 = (f1+f2)/2;
+Nd = f_/fb;
 N0 = f0/fb;
 N1 = f1/fb;
 N2 = f2/fb;
@@ -44,21 +46,22 @@ Lp = kzk_cal(Dsig,sig_max,Dzeta,zeta_max,N0,N1,N2,M,c1,c2,alpha,RD0,...
 	lD0,LP0);
 
 
-for i = 4:M
-    % reserve the ultrasound and their sum frequency
-    if (N1~=i && N2~=i && (N1*2)~=i && (N2*2)~=i && (N1+N2)~=i)
+for i = 1:M
+%     reserve the ultrasound and their sum frequency
+    if (N1~=i && N2~=i && (N1*2)~=i && (N2*2)~=i && (N1+N2)~=i ...
+            && i~=Nd && i~=2*Nd && i~=3*Nd)
         Lp{i} = {};
     end
 end
 
 % Plot
 figure
-plot(sig*RD0, Lp{1}(1,:),'-');
+plot(sig*RD0, Lp{Nd}(1,:),'-');
 xlabel('$z$ (m)')
 ylabel('SPL (dB)')
 
-print(sprintf('%s_cache.jpg', mfilename('fullpath')), '-djpeg', '-r200');
+print(sprintf('%s_cache.jpg', mfilename('fullpath')), '-djpeg', '-r300');
 save('kzk/data/kzk_cal_gen_cache.mat','Lp','RD0','sig','f0','N1','N2',...
-	'N0','f1','f2','xi', 'Tc', 'hr', 'rho0', 'a_rad',...
+	'N0','f1','f2','xi', 'Tc', 'hr', 'rho0', 'a_rad','fb','fd','Nd',...
 	'beta', 'LP0','f','zeta','sig_max','z_max',...
 	'alpha','I','J','Dsig','Dzeta','c0','M','PREF');
