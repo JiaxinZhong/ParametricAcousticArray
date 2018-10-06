@@ -61,17 +61,14 @@ for nn = 1:M
 	A{nn} = diag([2*bb;bb*ones(J-1,1)]) + diag([-2*bb;app],1) + diag(amm,-1);
 end
 
-G = cell(M,1);
-for nn = 1:M
-	G{nn} = zeros(J+1, I+1);
-end
+G = zeros(J+1, I+1, M);
 H = G;
 
 % boundary conditions
-G{N1}(0+1:j_a+1,0+1) = c1*cos(N1/N0*zeta(0+1:j_a+1).^2);
-G{N2}(0+1:j_a+1,0+1) = c2*cos(N2/N0*zeta(0+1:j_a+1).^2);
-H{N1}(0+1:j_a+1,0+1) = c1*sin(N1/N0*zeta(0+1:j_a+1).^2);
-H{N2}(0+1:j_a+1,0+1) = c2*sin(N2/N0*zeta(0+1:j_a+1).^2);
+G(0+1:j_a+1,0+1,N1) = c1*cos(N1/N0*zeta(0+1:j_a+1).^2);
+G(0+1:j_a+1,0+1,N2) = c2*cos(N2/N0*zeta(0+1:j_a+1).^2);
+H(0+1:j_a+1,0+1,N1) = c1*sin(N1/N0*zeta(0+1:j_a+1).^2);
+H(0+1:j_a+1,0+1,N2) = c2*sin(N2/N0*zeta(0+1:j_a+1).^2);
 B = cell(M,1);
 for nn = 1:M
 	B{nn} = -Dsig * 1^2 * alpha(nn) * RD0* eye(J);
@@ -87,20 +84,21 @@ for ii = 1:I
 	fprintf('i = %s, I = %s\n', num2str(ii), num2str(I));
 	for nn = 1:M
 		for jj = 0:J-1
-			Un = 0;
-			Vn = 0;
-			for mm = 1:nn-1
-				Un = Un+1/2*(G{mm}(jj+1,ii-1+1) * G{nn-mm}(jj+1,ii-1+1) - ...
-					H{mm}(jj+1,ii-1+1) * H{nn-mm}(jj+1,ii-1+1));
-				Vn = Vn+1/2*(H{mm}(jj+1,ii-1+1) * G{nn-mm}(jj+1,ii-1+1) + ...
-					G{mm}(jj+1,ii-1+1) * H{nn-mm}(jj+1,ii-1+1));
-			end
-			for mm = (nn+1):M
-				Un = Un - (G{mm-nn}(jj+1,ii-1+1) * G{mm}(jj+1,ii-1+1) + ...
-					H{mm-nn}(jj+1,ii-1+1) * H{mm}(jj+1,ii-1+1));
-				Vn = Vn + (H{mm-nn}(jj+1,ii-1+1) * G{mm}(jj+1,ii-1+1) -...
-					G{mm-nn}(jj+1,ii-1+1) * H{mm}(jj+1,ii-1+1));
-			end
+			% use matrix multiplication to accelerate computations
+			GG1 = squeeze(G(jj+1,ii-1+1,1:nn-1));
+			GG2 = flipud(GG1);
+			HH1 = squeeze(H(jj+1,ii-1+1,1:nn-1));
+			HH2 = flipud(HH1);
+			Un = 1/2 * (GG1.' * GG2 - HH1.' * HH2);
+			Vn = HH1.' * GG2;
+				
+			GG1 = squeeze(G(jj+1,ii-1+1,1:M-nn)); % m-n
+			GG2 = squeeze(G(jj+1,ii-1+1,nn+1:M)); % m
+			HH1 = squeeze(H(jj+1,ii-1+1,1:M-nn)); % m-n
+			HH2 = squeeze(H(jj+1,ii-1+1,nn+1:M)); % m
+			Un = Un - (GG1.' * GG2 + HH1.' * HH2);
+			Vn = Vn + (HH1.' * GG2 - GG1.' * HH2);
+
 			Un = 1/N0*Un*Dsig*nn*RD0/2/lD0;
 			Vn = 1/N0*Vn*Dsig*nn*RD0/2/lD0;
 
@@ -110,11 +108,15 @@ for ii = 1:I
 
 		AA = A{nn} / (sig(ii+1)+1)^2;
 		II = eye(2*(J)) - [B{nn}, AA; -AA, B{nn}];
-		GH_ = II\(eye(2*(J)) * [G{nn}(0+1:J-1+1,ii-1+1);...
-	   		H{nn}(0+1:J-1+1,ii-1+1)] + ...
+		% GH_ = II\(eye(2*(J)) * [G{nn}(0+1:J-1+1,ii-1+1);...
+		GH_ = II\(eye(2*(J)) * [G(0+1:J-1+1,ii-1+1,nn);...
+			   % H{nn}(0+1:J-1+1,ii-1+1)] + ...
+	   		H(0+1:J-1+1,ii-1+1,nn)] + ...
 			[U{nn}(0+1:J-1+1,ii-1+1);V{nn}(0+1:J-1+1,ii-1+1)]);
-		G{nn}(0+1:J-1+1,ii+1) = GH_(1:J);
-		H{nn}(0+1:J-1+1,ii+1) = GH_(J+1:end);
+		% G{nn}(0+1:J-1+1,ii+1) = GH_(1:J);
+		% H{nn}(0+1:J-1+1,ii+1) = GH_(J+1:end);
+		G(0+1:J-1+1,ii+1,nn) = GH_(1:J);
+		H(0+1:J-1+1,ii+1,nn) = GH_(J+1:end);
 	end
 	% end of the stopwatch
 	fprintf('Elapsed time is: %s\n', datestr(datenum(0,0,0,0,0,toc),...
@@ -124,7 +126,8 @@ end
 p = cell(M,1);
 Lp = cell(M,1);
 for nn = 1:M
-    p{nn} = sqrt(abs(G{nn}).^2 + abs(H{nn}).^2);
+    % p{nn} = sqrt(abs(G{nn}).^2 + abs(H{nn}).^2);
+    p{nn} = sqrt(abs(G(:,:,nn)).^2 + abs(H(:,:,nn)).^2);
     for ii = 0:I
         p{nn}(:,ii+1) = p{nn}(:,ii+1)/(sig(ii+1)+1);
     end
