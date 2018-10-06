@@ -40,8 +40,8 @@ function [Lp] = kzk_cal(Dsig,sig_max,Dzeta,zeta_max,N0,N1,N2,M,c1,c2,...
 % -------------------------------------------------------------------------
 % VERSION INFO
 %	Author				- Jiaxin Zhong
-%	Last modified 		- September 12, 2018
-%	Version 			- 1.0.20180918		
+%	Last modified 		- October 6, 2018
+%	Version 			- 2.0
 % =========================================================================
 
 I = fix(sig_max/Dsig);
