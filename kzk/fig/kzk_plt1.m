@@ -9,21 +9,21 @@ case 1
 	data{1} = load(strcat(dir_head, ...
 		'kzk_cal_gen_fd500_f160k_a0p1_P0118.mat'));
 	data{2} = load(strcat(dir_head, ...
-		'kzk_cal_gen_fd1k_f160k_a0p1_P0118.mat'));
+		'kzk_cal_gen_fd1000_f160k_a0p1_P0118.mat'));
 	data{3} = load(strcat(dir_head, ...
-		'kzk_cal_gen_fd2k_f160k_a0p1_P0118.mat'));
+		'kzk_cal_gen_fd2000_f160k_a0p1_P0118.mat'));
 	data{4} = load(strcat(dir_head, ...
-		'kzk_cal_gen_fd4k_f160k_a0p1_P0118.mat'));
+		'kzk_cal_gen_fd4000_f160k_a0p1_P0118.mat'));
 case 2
 	% set 2 for P0 = 135 dB
 	data{1} = load(strcat(dir_head, ...
 		'kzk_cal_gen_fd500_f160k_a0p1_P0135.mat'));
 	data{2} = load(strcat(dir_head, ...
-		'kzk_cal_gen_fd1k_f160k_a0p1_P0135.mat'));
+		'kzk_cal_gen_fd1000_f160k_a0p1_P0135.mat'));
 	data{3} = load(strcat(dir_head, ...
-		'kzk_cal_gen_fd2k_f160k_a0p1_P0135.mat'));
+		'kzk_cal_gen_fd2000_f160k_a0p1_P0135.mat'));
 	data{4} = load(strcat(dir_head, ...
-		'kzk_cal_gen_fd4k_f160k_a0p1_P0135.mat'));
+		'kzk_cal_gen_fd4000_f160k_a0p1_P0135.mat'));
 end
 
 %% plot the SPL along the axis of the transducer
