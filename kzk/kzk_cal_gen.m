@@ -10,7 +10,7 @@ PREF = 20e-6;
 c1 = 1;
 c2 = 1;
 f1 = 60000; 
-fd = 4500; % difference frequency
+fd = 3800; % difference frequency
 f2 = f1+fd;
 fb = gcd(f1,f2);
 M = fix(f2/fb*2+5);
@@ -18,7 +18,8 @@ P0 = 10^(LP0/20) * PREF;
 v0 = P0/rho0/c0;
 eps0 = v0/c0;
 f0 = (f1+f2)/2;
-Nd = f_/fb;
+
+Nd = fd/fb;
 N0 = f0/fb;
 N1 = f1/fb;
 N2 = f2/fb;
@@ -39,6 +40,7 @@ J = fix(zeta_max/Dzeta);
 sig = linspace(0, sig_max, I+1)';
 zeta = linspace(0,zeta_max, J+1)';
 xi = zeta * (sig.' +1);
+z = sig * RD0;
 n = (1:M)';
 f = (1:M).'*fb;
 alpha = cal_absorp_coeff(f, hr, Tc, 101.325);
@@ -64,4 +66,4 @@ print(sprintf('%s_cache.jpg', mfilename('fullpath')), '-djpeg', '-r300');
 save('kzk/data/kzk_cal_gen_cache.mat','Lp','RD0','sig','f0','N1','N2',...
 	'N0','f1','f2','xi', 'Tc', 'hr', 'rho0', 'a_rad','fb','fd','Nd',...
 	'beta', 'LP0','f','zeta','sig_max','z_max',...
-	'alpha','I','J','Dsig','Dzeta','c0','M','PREF');
+	'alpha','I','J','Dsig','Dzeta','c0','M','PREF','z');
