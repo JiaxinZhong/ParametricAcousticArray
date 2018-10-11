@@ -1,12 +1,19 @@
+function figAddMarker(numMarker,runExample)
 % =========================================================================
 % FUNCTION 
 %	- Add the markers to all the lines in gcf (i.e. current figure)
 %	- the maximal number of the lines is restricted to EIGHT
+% -------------------------------------------------------------------------
+% TEST VERSIONS
+%   Sucessful in:
+%       - MATLAB R2018a macOS
 % =========================================================================
 
 
 %% Example
-runExample = 0;
+if ~exist('runExample','var')
+    runExample = 0;
+end
 if runExample
     x = 1:300;
     y1 = sin(x*2*pi/200);
@@ -39,6 +46,7 @@ cacell{9} = ca9;
 
 %% Read data from the current figure
 hLine = findobj(gca, 'type', 'line');
+hLine = flipud(hLine); % the hangle of lines are reversely read
 numLine = length(hLine); % number of the lines
 x = cell(numLine,1);
 y = cell(numLine,1);
@@ -56,13 +64,19 @@ locLegend = get(hLegend, 'location');
 xLabel = get(get(gca, 'xlabel'),'string');
 yLabel = get(get(gca, 'ylabel'),'string');
 
+%% Get the limits of the axe
+xLim = get(gca, 'xlim');
+yLim = get(gca, 'ylim');
+
 %% close gcf
 close(gcf);
 
 %% Make the new figure
 figure
 % the number of the markers in a line
-numMarker = 10;
+if ~exist('numMarker','var')
+    numMarker = 8;
+end
 % the stepsize of the marker
 mkrStep = zeros(numLine, 1);
 for i = 1:numLine
@@ -77,7 +91,7 @@ end
 
 mkrType0 = {'x','*','o','^','d','o','^','d'};
 mkrType = strcat('-',mkrType0);
-mkrFacecolor = {'none', 'none', 'none', 'none', cacell{5:num_crv}};
+mkrFacecolor = {'none', 'none', 'none', 'none', cacell{5:numLine}};
 for i = 1:numLine
     plot(x{i}(mkrStart(i)), y{i}(mkrStart(i)), mkrType{i}, ...
         'color', cacell{i}, 'MarkerFaceColor', mkrFacecolor{i});
@@ -89,6 +103,14 @@ for i = 1:numLine
         'color', cacell{i}, 'MarkerFaceColor', mkrFacecolor{i});
 end
 
+% Reserve labels
 xlabel(xLabel)
 ylabel(yLabel)
-legend(strLegend,'location',locLegend);
+
+% reserve limits
+xlim(xLim);
+ylim(yLim);
+
+if ~isempty(strLegend)
+    legend(strLegend,'location',locLegend);
+end
