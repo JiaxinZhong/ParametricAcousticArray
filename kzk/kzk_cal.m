@@ -58,7 +58,7 @@ for nn = 1:M
 	bb = b(nn);
 	amm = am(1:end,nn);
 	app = ap(1:end-1,nn);
-	A{nn} = diag([2*bb;bb*ones(J-1,1)]) + diag([-2*bb;app],1) + diag(amm,-1);
+	A{nn} = sparse(diag([2*bb;bb*ones(J-1,1)]) + diag([-2*bb;app],1) + diag(amm,-1));
 end
 
 G = zeros(J+1, I+1, M);
@@ -71,12 +71,12 @@ H(0+1:j_a+1,0+1,N1) = c1*sin(N1/N0*zeta(0+1:j_a+1).^2);
 H(0+1:j_a+1,0+1,N2) = c2*sin(N2/N0*zeta(0+1:j_a+1).^2);
 B = cell(M,1);
 for nn = 1:M
-	B{nn} = -Dsig * 1^2 * alpha(nn) * RD0* eye(J);
+	B{nn} = sparse(-Dsig * 1^2 * alpha(nn) * RD0* eye(J));
 end
 
 U = cell(M,1);
 for nn = 1:M
-	U{nn} = zeros(J+1,I+1); 
+	U{nn} = sparse(J+1,I+1); 
 end
 V = U;
 for ii = 1:I

@@ -1,0 +1,404 @@
+\documentclass{article}
+\usepackage{scibook}
+\usepackage{scigeneral}
+
+\title{Notes on the project ParametricAcousticArray}
+
+\usepackage{tabularx}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\section{List of Symbols}
+
+\begin{tabular}{p{4cm}p{10cm}}
+	Symbols & Descriptions \\
+	$a$ & radius of the source \\
+	$c_0$ & isentropic speed of sound at ambient values of pressure and density\\
+	$f_1,f_2$ & $f_1= N_1f\st{b},f_2=N_2f\sb{b}$,  primary frequencies\\
+	$f\st{b}$ & $=\gcd{f_2-f_1}$, basic frequency\\
+	$f\st{m}$ & $=(f_1+f_2)/2$, mean primary frequency\\
+	$k$ & $ = 2\uppi f/c_0$  wavenumber\\
+	$k\st{m}$ & $=(k_1+k_2)/2$  wavenumber of the mean primary frequency\\
+	$l\st{D}$ & $=(\beta k \oldeps)^{-1}$, shock formation distance of a plane wave\\
+	$L_x, L_y$ & the size of the rectangular transducer in $x,y$ direction, and $L_y\geq L_x$\\
+	$N\st{m}$ & $= (N_1+N_2)/2$\\
+	$p$ & pressure\\
+	$p_0$ & ambient pressure\\
+	$\bar{p}$ & $=(p-p_0)/P_0$, acoustic pressure normalized to $P_0$\\
+	$P_0$ & $\rho_0 c_0 v_0$, acoustic pressure peak amplitude on the source\\
+	$R\st{D}$ &$=ka^2/2 = \uppi a^2/\lambda$, Rayleigh distance of primary frequency\\
+	$R\st{Dm}$ &$=k\st{m}a^2/2 = \uppi a^2/\lambda\st{m}$, Rayleigh distance of mean primary frequency\\
+	$t$ & time\\
+	$\vb{u}$ & $=(u_x,u_y) = \vb{r}/L_y=(x,y)/L_y$\\
+	$v_0$ & characteristic velocity peak amplitude on the source\\
+	$x,y,z$ & dimensional coordinates, $z$ along the direction of propagation\\
+	$\vb{r}$ & $(x,y)$\\
+	$r$ & $|\vb{r}|$\\
+	$\alpha$ &absorption coefficient, in Neper per meter\\
+	$\beta$ & parameter of nonlinearity\\
+	$\oldeps$ & $=u_0/c_0$, Mach number\\
+	$\sigma$ & $=z/R\st{D}$, nondimensional $z$ \\
+	$\sigma\st{D}$ & $=l\st{D}/R\st{D}$\\
+	$\sigma\st{Dm}$ & $=l\st{Dm}/R\st{Dm}$\\
+	$\chi$ & $=x/R\st{Dm}$\\
+	$\psi$ & $=y/R\st{Dm}$\\
+	$\gamma$ & $=L_y/L_x$, the aspect ratio\\
+	$\laplacian_{x,y}$ & $\displaystyle=\pdv[2]{x} + \pdv[2]{y}$\\
+	$\laplacian_{u}$ & $\displaystyle \pdv[2]{\vb{u}} = \frac{1}{u} \pdv{u} \qty(u \pdv{u})$\\
+	% $\laplacian_{\vb{u}}$ & $\displaystyle \pdv[2]{\bm{\xi}} = \frac{1}{\xi} \pdv{\xi} \qty(\xi \pdv{\xi})$\\
+	$\laplacian_{\chi,\psi}$ & $\displaystyle=\pdv[2]{\chi} + \pdv[2]{\psi}$\\
+\end{tabular}
+
+\section{Theoretical Model and Analytical Solutions}
+\subsection{KZK Equation}
+Nonlinear propagation of finite amplitude sound waves in dissipative and homogenous fluid is decribed by the following KZK equation: 
+\begin{align}
+	\pdv{\bar{p} }{\sigma}{\tau}= \alpha R\st{D} \pdv[3]{\bar{p} }{\tau} +\frac14 \laplacian_\perp \bar{p} + \frac{1}{2\sigma\st{D}} \pdv[2]{ (\bar{p})^2}{\tau}
+	\label{eq:kzk}
+\end{align}
+
+If the source is bifrequency, i.e.
+\begin{align}
+	f_i = N_i f\st{b}\qc N_i \in \N^+\qc i = 1,2
+\end{align}
+
+\subsubsection{Rectangular profile}
+The Eq. (\ref{eq:kzk}) is written as
+
+\begin{align}
+	\pdv{\bar{p} }{\sigma}{\tau}= \alpha R\st{D} \pdv[3]{\bar{p} }{\tau} +
+	\frac{1}{\uppi \gamma} \laplacian_u \bar{p} + \frac{1}{2\sigma\st{D}} \pdv[2]{ (\bar{p})^2}{\tau}
+	\label{eq:kzk_rect}
+\end{align}
+
+The transformations are:
+
+\begin{align}
+	\sigma\st{m} = z/R\st{Dm}\qc
+	T = (1+\sigma\st{m})\bar{p}\qc
+	\tau\st{m} = \tau - \frac{\uppi \gamma}{4} \frac{\xi^2}{N\st{m} (1+\sigma\st{m})}\qc
+	(\chi, \psi) = \frac{(u_x,u_y)}{1+\sigma\st{m}}
+\end{align}
+
+Then, the transformed KZK equation is obtained by Eq. (\ref{eq:kzk_rect}) 
+\begin{align}
+	\pdv{T}{\sigma\st{m}}{\tau\st{m}} 
+	= 
+	\frac{\alpha\st{m}}{N\st{m}^2} R\st{Dm} \pdv[3]{T}{\tau\st{m}}
+	+ \frac{N\st{m}}{\uppi \gamma(1+\sigma\st{m})^2} \laplacian_{\chi, \psi} T
+	+\frac{1}{2N\st{m}\sigma\st{Dm}(1+\sigma\st{m})}
+	\pdv[2]{(T^2)}{\tau\st{m}}
+	\label{eq:kzk_rect_tbe}
+\end{align}
+
+\subsection{Spectral Solutions}
+
+A solution of Eq. (\ref{eq:kzk_rect}) is sought in the form of a Fourier series
+\begin{align}
+	\label{eq:fourier}
+	\bar{p} = \sum_{n=1}^\infty (g_n \sin n\tau + h_n \cos n\tau ) = \sum_{n=1}^\infty \bar{p}_n
+\end{align}
+where $g_n$ and $h_n$ are functions of spatial coordinates.
+
+The solution of Eq. (\ref{eq:kzk_rect_tbe}) is 
+\begin{align}
+	T = \sum_{n=1}^\infty [g_n(\chi,\psi,\sigma\st{m}) \sin n\tau\st{m} 
+		+ h_n(\chi,\psi,\sigma\st{m}) \cos n\tau\st{m} ] 
+	= \sum_{n=1}^\infty T_n
+\end{align}
+
+\subsection{Coupled PDEs}
+We thus obtain the following set of coupled partial differential equations for $g_n$ and $h_n$.
+
+\subsubsection{Rectangular Profile}
+\begin{align}
+	\pdv{g_n}{\sigma} = - \alpha_n R\st{Dm} g_n &+
+	\frac{1}{\uppi \gamma n(1+\sigma\st{m})^2} \laplacian_{\chi,\psi} h_n 
+	+ \frac{n}{2N\st{m}\sigma\st{Dm}(1+\sigma\st{m})}\nonumber \\
+	&\times \qty[\frac12 \sum_{m=1}^{n-1} (g_m g_{n-m} - h_m h_{n-m}) - \sum_{m=n+1}^\infty (g_{m-n}g_m+h_{m-n}h_m) ]\label{eq:gn_pdv_rect}\\
+	\pdv{h_n}{\sigma} = - \alpha_n R\st{Dm} h_n &- \frac{1}{\uppi \gamma n(1+\sigma\st{m})^2} \laplacian_{\chi,\psi} g_n
+	+ \frac{n}{2N\st{m}\sigma\st{Dm}(1+\sigma\st{m})} \nonumber \\
+	&\times \qty[\sum_{m=1}^{n-1} g_m h_{n-m} + \sum_{m=n+1}^\infty (h_{m-n}g_m-g_{m-n}h_m) ]\label{eq:hn_pdv_rect}
+\end{align}
+
+\subsection{Boundary Conditions}
+The boundary condition for $g_n$ and $h_n$ at $\sigma = \sigma\st{m}=0$ is 
+$$
+g_n = \frac1\uppi \int_{-\uppi}^\uppi c \sin n\tau\st{m} \dd{\tau\st{m}}$$
+$$
+h_n = \frac1\uppi \int_{-\uppi}^\uppi c \cos n\tau\st{m} \dd{\tau\st{m}}$$
+
+\subsubsection{Circular Profile}
+The boundary condition at $\sigma=\sigma\st{m}=0$ is 
+\begin{align}
+	\bar{p} (\sigma\st{m}=0, \bm{\xi},\tau) = c(\bm{\xi}, \tau)
+\end{align}
+
+Suppose it is 
+\begin{align}
+	\bar{p} (\sigma\st{m} =0,\bm{\xi}, \tau) = c_1(\bm{\xi}) \sin N_1 \tau
+	+c_2(\bm{\xi}) \sin N_2\tau
+\end{align}
+
+\subsubsection{Rectangular Profile}
+The boundary condition at $\sigma=\sigma\st{m}=0$ is 
+\begin{align}
+	\bar{p} (\sigma\st{m}=0, \vb{u},\tau) = c(\vb{u}, \tau)
+\end{align}
+
+Suppose it is 
+\begin{align}
+	\bar{p} (\vb{u},\sigma\st{m} =0, \tau) &= c_1(\vb{u}) \sin N_1 \tau
+	+c_2(\vb{u}) \sin N_2\tau \\
+	& = c_1(\vb{u}) \qty[\cos\qty(\frac{\uppi \gamma N_1}{4N\st{m}} \xi^2)\sin N_1 \tau\st{m}
+	+ \sin \qty(\frac{\uppi \gamma N_1}{4N\st{m}}\xi^2)\cos N_1 \tau\st{m}] \nonumber \\
+	&+ c_2(\vb{u}) \qty[\cos\qty(\frac{\uppi \gamma N_1}{4N\st{m}} \xi^2)\sin N_2\tau\st{m}
+	+ \sin \qty(\frac{\uppi \gamma N_1}{4 N\st{m}}\xi^2)\cos N_2\tau\st{m}]
+\end{align}
+
+Then
+\begin{align}
+	g_{N_i} (\chi, \psi, \sigma\st{m}=0) = c_i(\chi,\psi) \cos 
+	\qty[\frac{\uppi \gamma N_i}{4 N\st{m}} (\chi^2 +\psi^2)]\qc i = 1,2\\
+	h_{N_i} (\chi, \psi, \sigma\st{m}=0) = c_i(\chi,\psi) \sin 
+	\qty[\frac{\uppi \gamma N_i}{4 N\st{m}} (\chi^2 +\psi^2)]\qc i=1,2\\
+	g_n(\chi,\psi, \sigma\st{m}=0) = h_n(\chi,\psi,\sigma\st{m}=0) = 0\qc 
+	n \neq N_1, N_2
+\end{align}
+
+\section{Numerical Methods}
+
+\subsection{Discretization}
+\subsubsection{Rectangular Profile}
+$$
+\sigma_i = i\Delta \sigma\qc i=0,1, \cdots, I-1, I\qc \sigma_0 = 0\qc \sigma_I = \sigma_\text{max}\qc \Delta\sigma = \frac{\sigma\st{max}}{I}
+$$
+$$
+\chi_j = j\Delta \chi\qc j=0,1, \cdots, J-1, J\qc \chi_0 = 0\qc \chi_J = 
+\chi_\text{max}\qc \Delta\chi = \frac{\chi\st{max}}{J}
+$$
+$$
+\psi_k = k\Delta \psi\qc k=0,1, \cdots, K-1, K\qc \psi_0 = 0\qc \psi_K = \psi_\text{max}\qc \Delta\psi = \frac{\psi\st{max}}{K}
+$$
+
+
+For $\pdv*{g_n}{\sigma}$ or $\pdv*{h_n}{\sigma}$, we adopt Backward Implicit
+Finite Difference
+
+\begin{align}
+	\left. \pdv{g_n(\chi,\psi,\sigma\st{m})}{\sigma\st{m}}\right|_{i,j,k} 
+	= \frac{g_n^{i,j,k} - g_n^{i-1,j,k}}{\Delta \sigma\st{m}}\qc
+	i = 1,2, \cdots, I
+\end{align}
+
+where
+\begin{align}
+	g_n^{i,j,k} \approx g_n(\chi_j,\psi_k,\sigma_{\mathrm{m},i}) \nonumber \\
+	h_n^{i,j,k} \approx h_n(\chi_j,\psi_k,\sigma_{\mathrm{m},i}) 
+\end{align}
+
+For $\laplacian_{\chi,\psi} g_n$ or $\laplacian_{\chi,\psi} h_n$, 4 cases
+are considered:
+
+(1) $j = 1,2,\cdots,J-1,$ and $k = 1,2,\cdots,K-1$
+\begin{align}
+	\left. \laplacian_{\chi,\psi}\right|_{i,j,k}
+	= \frac{g_n^{i,j-1,k} - 2g_n^{i,j,k} + g_n^{i,j+1,k}}{(\Delta \chi)^2}
+	+ \frac{g_n^{i,j,k-1} - 2g_n^{i,j,k} + g_n^{i,j,k+1}}{(\Delta \psi)^2}
+\end{align}
+
+(2) $j = 1,2,\cdots,J-1,$ and $k = 0$
+\begin{align}
+	\left. \laplacian_{\chi,\psi}\right|_{i,j,0}
+	= \frac{g_n^{i,j-1,0} - 2g_n^{i,j,0} + g_n^{i,j+1,0}}{(\Delta \chi)^2}
+	+ \frac{-2g_n^{i,j,0} + 2g_n^{i,j,1}}{(\Delta \psi)^2}
+\end{align}
+
+(3) $j = 0,$ and $k = 1,2,\cdots,K-1$
+\begin{align}
+	\left. \laplacian_{\chi,\psi}\right|_{i,0,k}
+	= \frac{-2g_n^{i,0,k} + 2g_n^{i,1,k}}{(\Delta \chi)^2}
+	+ \frac{g_n^{i,0,k-1} - 2g_n^{i,0,k} + g_n^{i,0,k+1}}{(\Delta \psi)^2}
+\end{align}
+
+(4) $j = 0,$ and $k =0$
+
+\begin{align}
+	\left. \laplacian_{\chi,\psi}\right|_{i,0,0}
+	= \frac{-2g_n^{i,0,0} + 2g_n^{i,1,0}}{(\Delta \chi)^2}
+	+ \frac{-2g_n^{i,0,0} + 2g_n^{i,0,1}}{(\Delta \psi)^2}
+\end{align}
+
+where the symmetric conditions are used
+\begin{align}
+	\left.\pdv{g_n}{\chi}\right|_{\chi=0} = \left.\pdv{h_n}{\chi}\right|_{\chi=0} = 0\qc n= 1,2,\cdots,N\nonumber\\
+	\left. \pdv{g_n}{\psi}\right|_{\psi=0} = \left. \pdv{h_n}{\psi}\right|_{\psi=0} = 0\qc n= 1,2,\cdots,N
+\end{align}
+
+
+Discrete Eq. (\ref{eq:gn_pdv_rect}) and Eq. (\ref{eq:hn_pdv_rect}), we have
+
+(1) $j = 1,2,\cdots,J-1,$ and $k = 1,2,\cdots,K-1$
+\begin{align}
+	g_n^{i,j,k}-g_n^{i-1,j,k} = - \Delta\sigma\st{m}&\alpha_n R\st{Dm} g_n^{i,j,k}
+	+\mathcal{G}_n^{i-1,j,k}
+	+\frac{\Delta\sigma_{\mathrm{m}}}{\uppi \gamma n(1+\sigma_{\mathrm{m},i})^2} \nonumber\\
+	&\times\qty[\frac{h_n^{i,j-1,k}-2h_n^{i,j,k}+h_n^{i,j+1,k}}{(\Delta \chi)^2}
+	+ \frac{h_n^{i,j,k-1} - 2h_n^{i,j,k} +h_n^{i,j,k+1}}{(\Delta \psi)^2}]\\
+	h_n^{i,j,k}-h_n^{i-1,j,k} = - \Delta\sigma\st{m}&\alpha_n R\st{Dm} h_n^{i,j,k}
+	+\mathcal{H}_n^{i-1,j,k}
+	-\frac{\Delta\sigma\st{m}}{\uppi \gamma n(1+\sigma_{\mathrm{m},i})^2} \nonumber\\
+	&\times\qty[\frac{g_n^{i,j-1,k}-2g_n^{i,j,k}+g_n^{i,j+1,k}}{(\Delta \chi)^2}
+	+ \frac{g_n^{i,j,k-1} - 2g_n^{i,j,k} +g_n^{i,j,k+1}}{(\Delta \psi)^2}]
+\end{align}
+
+(2) $j = 1,2,\cdots,J-1,$ and $k = 0$
+
+\begin{align}
+	g_n^{i,j,0}-g_n^{i-1,j,0} = - \Delta\sigma\st{m}&\alpha_n R\st{Dm} g_n^{i,j,0}
+	+\mathcal{G}_n^{i-1,j,0}
+	+\frac{\Delta\sigma_{\mathrm{m}}}{\uppi \gamma n(1+\sigma_{\mathrm{m},i})^2} \nonumber\\
+	&\times\qty[\frac{h_n^{i,j-1,0}-2h_n^{i,j,0}+h_n^{i,j+1,0}}{(\Delta \chi)^2}
+	+ \frac{-2h_n^{i,j,0} + 2h_n^{i,j,1} }{(\Delta \psi)^2}]\\
+	h_n^{i,j,0}-h_n^{i-1,j,0} = - \Delta\sigma\st{m}&\alpha_n R\st{Dm} h_n^{i,j,0}
+	+\mathcal{H}_n^{i-1,j,0}
+	-\frac{\Delta\sigma_{\mathrm{m}}}{\uppi \gamma n(1+\sigma_{\mathrm{m},i})^2} \nonumber\\
+	&\times\qty[\frac{g_n^{i,j-1,0}-2g_n^{i,j,0}+g_n^{i,j+1,0}}{(\Delta \chi)^2}
+	+ \frac{-2g_n^{i,j,0} + 2g_n^{i,j,1} }{(\Delta \psi)^2}]
+\end{align}
+
+(3) $j = 0,$ and $k = 1,2,\cdots,K-1$
+\begin{align}
+	g_n^{i,0,k}-g_n^{i-1,0,k} = - \Delta\sigma\st{m}&\alpha_n R\st{Dm} g_n^{i,0,k}
+	+\mathcal{G}_n^{i-1,0,k}
+	+\frac{\Delta\sigma_{\mathrm{m}}}{\uppi \gamma n(1+\sigma_{\mathrm{m},i})^2} \nonumber\\
+	&\times\qty[\frac{-2h_n^{i,0,k}+2h_n^{i,1,k}}{(\Delta \chi)^2}
+	+ \frac{h_n^{i,0,k-1} - 2h_n^{i,0,k} +h_n^{i,0,k+1}}{(\Delta \psi)^2}]\\
+	h_n^{i,0,k}-h_n^{i-1,0,k} = - \Delta\sigma\st{m}&\alpha_n R\st{Dm} h_n^{i,0,k}
+	+\mathcal{H}_n^{i-1,0,k}
+	-\frac{\Delta\sigma\st{m}}{\uppi \gamma n(1+\sigma_{\mathrm{m},i})^2} \nonumber\\
+	&\times\qty[\frac{-2g_n^{i,0,k}+2g_n^{i,1,k}}{(\Delta \chi)^2}
+	+ \frac{g_n^{i,0,k-1} - 2g_n^{i,0,k} +g_n^{i,0,k+1}}{(\Delta \psi)^2}]
+\end{align}
+
+(4) $j = 0,$ and $k =0$
+\begin{align}
+	g_n^{i,0,0}-g_n^{i-1,0,0} = - \Delta\sigma\st{m}&\alpha_n R\st{Dm} g_n^{i,0,0}
+	+\mathcal{G}_n^{i-1,0,0}
+	+\frac{\Delta\sigma_{\mathrm{m}}}{\uppi \gamma n(1+\sigma_{\mathrm{m},i})^2} \nonumber\\
+	&\times\qty[\frac{-2h_n^{i,0,0}+2h_n^{i,1,0}}{(\Delta \chi)^2}
+	+ \frac{-2h_n^{i,0,0} + 2h_n^{i,0,1} }{(\Delta \psi)^2}]\\
+	h_n^{i,0,0}-h_n^{i-1,0,0} = - \Delta\sigma\st{m}&\alpha_n R\st{Dm} h_n^{i,0,0}
+	+\mathcal{H}_n^{i-1,0,0}
+	-\frac{\Delta\sigma\st{m}}{\uppi \gamma n(1+\sigma_{\mathrm{m},i})^2} \nonumber\\
+	&\times\qty[\frac{-2g_n^{i,0,0}+2g_n^{i,1,0}}{(\Delta \chi)^2}
+	+ \frac{-2g_n^{i,0,0} + 2g_n^{i,0,1} }{(\Delta \psi)^2}]
+\end{align}
+
+where 
+\begin{align}
+	\mathcal{G}_n^{i,j,k} &= \frac{n\Delta \sigma\st{m}}{2N\st{m} \sigma\st{Dm}
+	(1+\sigma_{\mathrm{m},i})}
+	\qty[\frac12 \sum_{m=1}^{n-1} (g_m^{i,j,k} g_{n-m}^{i,j,k}-
+	h_{m}^{i,j,k} h_{n-m}^{i,j,k}) - 
+	\sum_{n+1}^N (g_{m}^{i,j,k}g_{m-n}^{i,j,k} + h_{m}^{i,j,k} h_{m-n}^{i,j,k})]\\
+	\mathcal{H}_n^{i,j,k} &= \frac{n\Delta \sigma\st{m}}{2N\st{m} \sigma\st{Dm}
+	(1+\sigma_{\mathrm{m},i})}
+	\qty[\sum_{m=1}^{n-1} g_m^{i,j,k} h_{n-m}^{i,j,k}
+	+\sum_{n+1}^N (g_{m}^{i,j,k}h_{m-n}^{i,j,k} - h_{m}^{i,j,k} g_{m-n}^{i,j,k})]
+\end{align}
+
+\subsection{Matrix Form}
+
+\subsubsection{Rectangular Profile}
+
+
+
+\section{Legacy}
+
+
+\subsection{Matrix Form}
+\begin{align}
+	I_{2(J-1)} \mqty[G_n^i-G_n^{i-1}\\ H_n^i-H_n^{i-1}] 
+= \mqty[B_{(J-1)\times(J-1)} & A_{(J-1)\times(J-1)}\\ -A_{(J-1)\times(J-1)} & B_{(J-1)\times(J-1)}] \mqty[G_n^i\\ H_n^i] 
++\mqty[\mathcal{H}_n^i\\ \mathcal{G}_n^i]
++\mqty[S_n^{i-1}\\ T_n^{i-1}]
+\end{align}
+$$
+(i=1,2,\cdots, I-1,I)
+$$
+
+It can be written as
+
+\begin{align}
+	\qty(I_{2(J-1)} - \mqty[B&A\\ -A&B] ) \mqty[G_n^i\\H_n^i] = I_{2(J-1)} \mqty[G_n^{i-1}\\ H_n^{i-1}] 
++\mqty[\mathcal{H}_n^i\\ \mathcal{G}_n^i]
++\mqty[S_n^{i-1}\\ T_n^{i-1}]
+\end{align}
+
+where
+\begin{align}
+	G_n^i = \mqty[g_n^{i,1}\\ g_n^{i,2} \\ \vdots \\ g_n^{i,J-1}]\qc 
+	G_n^{i-1} = \mqty[g_n^{i-1,1}\\ g_n^{i-1,2} \\ \vdots \\ g_n^{i-1,J-1}]\qc 
+	H_n^i = \mqty[h_n^{i,1}\\ h_n^{i,2} \\ \vdots \\ h_n^{i,J-1}]\qc 
+	H_n^{i-1} = \mqty[h_n^{i-1,1}\\ h_n^{i-1,2} \\ \vdots \\ h_n^{i-1,J-1}]
+\end{align}
+
+\begin{align}
+	\mathcal{G}_n^i = \mqty[a_1 g_n^{i,0}\\ O_{(J-3)\times 1} \\ b_{J-1} g_n^{i,J}]\qc
+	\mathcal{H}_n^i = \mqty[a_1 h_n^{i,0}\\ O_{(J-3)\times 1} \\ b_{J-1} h_n^{i,J}]\qc 
+	h_n^{i,J} = h_n(\sigma_i, \xi_J) = h_n(\sigma_i,\xi\st{max}) = 0
+\end{align}
+
+\begin{align}
+	A = \mqty[q & b_1 \\ a_2 & q & b_2 \\ & & & & \vdots \\ & & & & & a_{J-2}& q & b_{J-2}\\ &&&&&&a_{J-1}&q]\qc
+	\begin{cases}
+		a_j = (1-0.5/j)\dfrac{\Delta \sigma}{4n(\Delta \xi)^2} \\
+		b_j = (1+0.5/j)\dfrac{\Delta \sigma}{4n(\Delta \xi)^2} \\
+		q = -\dfrac{\Delta \sigma }{2n(\Delta \xi)^2}
+	\end{cases} j=1,2,\cdots, J-1
+\end{align}
+
+\begin{align}
+	B = -\Delta \sigma \alpha_n R\st{D} I_{J-1}
+\end{align}
+
+\begin{align}
+	S_n^{i-1} = \mqty[S_n^{i-1,1} \\ S_n^{i-1,2} \\ \vdots \\ S_n^{i-1,J-1}]\qc
+	T_n^{i-1} = \mqty[T_n^{i-1,1} \\ T_n^{i-1,2} \\ \vdots \\ T_n^{i-1,J-1}]
+\end{align}
+
+\begin{align}
+	S_n^{i-1,j} = \Delta \sigma n\frac{R\st{D}}{2l\st{D}}\qty[\frac12\sum_{m=1}^{n-1}(g_m^{i-1,j}g_{n-m}^{i-1,j}-h_m^{i-1,j}h_{n-m}^{i-1,j}) - \sum_{m=n+1}^M (g_{m-n}^{i-1,j} g_m^{i-1,j}+h_{m-n}^{i-1,j}h_m^{i-1,j})]\\
+	T_n^{i-1,j} = \Delta \sigma n\frac{R\st{D}}{2l\st{D}}\qty[\frac12\sum_{m=1}^{n-1}(h_m^{i-1,j}g_{n-m}^{i-1,j}+g_m^{i-1,j}h_{n-m}^{i-1,j}) + \sum_{m=n+1}^M (h_{m-n}^{i-1,j} g_m^{i-1,j}-g_{m-n}^{i-1,j}h_m^{i-1,j})]
+\end{align}
+
+\begin{align}
+	g_n^{i,0} = (1-\Delta\sigma  \alpha_n R\st{D})g_n^{i-1,0} + \frac{\Delta \sigma}{n(\Delta\xi)^2} (h_n^{i-1,1}-h_n^{i-1,0})+ S_n^{i-1,0}\\
+	h_n^{i,0} = (1-\Delta\sigma  \alpha_n R\st{D})h_n^{i-1,0} - \frac{\Delta \sigma}{n(\Delta\xi)^2} (g_n^{i-1,1}-g_n^{i-1,0}) + T_n^{i-1,0}
+\end{align}
+$$
+	(i=1,2,\cdots,I) \nonumber
+	$$
+
+\section{Crank-Nicolson Method}
+\begin{equation}
+\end{equation}
+
+\subsection{Data Set: Kamakura 1989}
+\emph{Fig. 6}
+$$
+\Delta \sigma = 3\times 10^{-4}\qc \sigma\st{max} = 10\qc \Delta \xi = 0.03\qc \xi\st{max} = 6\qc T = 23.7 \celsius\qc h\st{r} = 65.2\%
+$$
+$$
+M=18\qc f_1 = 25 \text{kHz}\qc f_2 = 30 \text{kHz}\qc P_0(25 \text{kHz}) = 109.5 \text{dB}\qc P_0(30 \text{kHz})=108.5 \text{dB}
+$$
+$$
+a = 0.21\si{m}
+$$
+\end{document}
+
