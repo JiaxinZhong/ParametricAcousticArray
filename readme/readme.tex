@@ -4,7 +4,10 @@
 
 \title{Notes on the project ParametricAcousticArray}
 
+\bibliographystyle{plain}
+
 \usepackage{tabularx}
+
 
 \begin{document}
 
@@ -170,6 +173,76 @@ Then
 	n \neq N_1, N_2
 \end{align}
 
+\subsection{Sound Power of Waves}
+\subsubsection{Circular Profile}
+The overall power of a wave is found by integrating the intensity across 
+the entire field.
+Within the parabolic approximation the linear plane wave impedance relation
+is valid \cite{tjotta1981}, and the nondimensional power of a wave is given by 
+( Eq. (2.6) in \cite{vefring1989} )
+
+$$
+\overline{\mathcal{P}}(\sigma\st{m})
+=
+\frac{1}{2\uppi} \int_0^{2\uppi} \int_0^\infty
+\bar{p}^2 (\xi,\sigma\st{m},\tau)\xi \dd{\xi} \dd{\tau}
+$$
+
+The nondimensional power of an individual harmonic component is given
+by (Eq (2.7) in \cite{vefring1989})
+\begin{align}
+\overline{\mathcal{P}}_n(\sigma\st{m})
+=
+\frac{1}{2\uppi} \int_0^{2\uppi} \int_0^\infty
+\bar{p}_n^2 (\xi,\sigma\st{m},\tau)\xi \dd{\xi} \dd{\tau}
+\label{eq:power_n}
+\end{align}
+
+Transform the coordinates into $(\zeta,\sigma\st{m})$, Eq. 
+(\ref{eq:power_n}) can be written into
+\begin{align}
+\overline{\mathcal{P}}_n (\sigma\st{m})
+&=
+\frac{1}{2\uppi}\int_0^{2\uppi} \int_0^\infty
+[g_n(\zeta,\sigma\st{m})\sin n\tau\st{m} + 
+h_n(\zeta,\sigma\st{m})\cos n\tau\st{m}]^2\dd{\zeta}\dd{\tau}\nonumber\\
+&=
+\frac{1}{2\uppi}\int_0^{2\uppi} \int_0^\infty
+\left[
+	\qty(
+	g_n(\zeta,\sigma\st{m}) \cos\phi_n+
+	h_n(\zeta,\sigma\st{m}) \sin\phi_n
+	)\sin n\tau \right.\nonumber\\
+	&\qquad \qquad \qquad \qquad +\left.
+	\qty(
+	-g_n(\zeta,\sigma\st{m}) \sin\phi_n
+	+
+	h_n(\zeta,\sigma\st{m}) \cos\phi_n
+	)\cos n\tau
+\right]^2 \zeta\dd{\zeta}\dd{\tau}\\
+&= \frac12 \int_0^\infty
+\left[
+	\qty(
+	g_n(\zeta,\sigma\st{m}) \cos\phi_n+
+	h_n(\zeta,\sigma\st{m}) \sin\phi_n
+	)^2 \right.\nonumber\\
+	&\qquad \qquad \qquad \qquad +\left.
+	\qty(
+	-g_n(\zeta,\sigma\st{m}) \sin\phi_n
+	+
+	h_n(\zeta,\sigma\st{m}) \cos\phi_n
+	)^2
+\right] \zeta\dd{\zeta}
+\end{align}
+
+where 
+$$
+\phi_n = 
+\frac{n}{N\st{m}} (1+\sigma\st{m}) \zeta^2
+$$
+
+
+
 \section{Numerical Methods}
 
 \subsection{Discretization}
@@ -305,91 +378,89 @@ where
 	(1+\sigma_{\mathrm{m},i})}
 	\qty[\frac12 \sum_{m=1}^{n-1} (g_m^{i,j,k} g_{n-m}^{i,j,k}-
 	h_{m}^{i,j,k} h_{n-m}^{i,j,k}) - 
-	\sum_{n+1}^N (g_{m}^{i,j,k}g_{m-n}^{i,j,k} + h_{m}^{i,j,k} h_{m-n}^{i,j,k})]\\
+	\sum_{m=n+1}^N (g_{m}^{i,j,k}g_{m-n}^{i,j,k} + h_{m}^{i,j,k} h_{m-n}^{i,j,k})]\\
 	\mathcal{H}_n^{i,j,k} &= \frac{n\Delta \sigma\st{m}}{2N\st{m} \sigma\st{Dm}
 	(1+\sigma_{\mathrm{m},i})}
 	\qty[\sum_{m=1}^{n-1} g_m^{i,j,k} h_{n-m}^{i,j,k}
-	+\sum_{n+1}^N (g_{m}^{i,j,k}h_{m-n}^{i,j,k} - h_{m}^{i,j,k} g_{m-n}^{i,j,k})]
+	+\sum_{m=n+1}^N (g_{m}^{i,j,k}h_{m-n}^{i,j,k} - h_{m}^{i,j,k} g_{m-n}^{i,j,k})]
 \end{align}
 
 \subsection{Matrix Form}
 
 \subsubsection{Rectangular Profile}
-
-
-
-\section{Legacy}
-
-
-\subsection{Matrix Form}
 \begin{align}
-	I_{2(J-1)} \mqty[G_n^i-G_n^{i-1}\\ H_n^i-H_n^{i-1}] 
-= \mqty[B_{(J-1)\times(J-1)} & A_{(J-1)\times(J-1)}\\ -A_{(J-1)\times(J-1)} & B_{(J-1)\times(J-1)}] \mqty[G_n^i\\ H_n^i] 
-+\mqty[\mathcal{H}_n^i\\ \mathcal{G}_n^i]
-+\mqty[S_n^{i-1}\\ T_n^{i-1}]
+	\mqty[\vb{E}_n & -\vb{A}_n^i \\ \vb{A}_n^i & \vb{E}_n]
+	\mqty[\vb{G}_n^i\\ \vb{H}_n^i]
+	=
+	\mqty[\vb{G}_n^{i-1}\\ \vb{H}_n^{i-1}]
+	+
+	\mqty[\vb{\mathcal{G}}_n^{i-1}\\ \vb{\mathcal{H}}_n^{i-1}]
 \end{align}
+	where
 $$
-(i=1,2,\cdots, I-1,I)
+\vb{E}_n = (1+\Delta\sigma\st{m} \alpha_n R\st{Dm}) \vb{I}_{JK \times JK}$$
+
+$$
+\vb{G}_n^i = \mqty[\vb{g}_n^{i,0,\cdot}\\ \vb{g}_n^{i,1,\cdot}\\ \vdots\\
+\vb{g}_n^{i,J-1,\cdot}]
+\qc 
+\vb{g}_n^{i,j,\cdot} = \mqty[\vb{g}_n^{i,j,0}\\ \vb{g}_n^{i,j,1}\\ \vdots\\
+\vb{g}_n^{i,j,K-1}]
+\qc
+\vb{H}_n^i = \mqty[\vb{h}_n^{i,0,\cdot}\\ \vb{h}_n^{i,1,\cdot}\\ \vdots\\
+\vb{h}_n^{i,J-1,\cdot}]
+\qc 
+\vb{h}_n^{i,j,\cdot} = \mqty[\vb{h}_n^{i,j,0}\\ \vb{h}_n^{i,j,1}\\ \vdots\\
+\vb{h}_n^{i,j,K-1}]
 $$
 
-It can be written as
-
-\begin{align}
-	\qty(I_{2(J-1)} - \mqty[B&A\\ -A&B] ) \mqty[G_n^i\\H_n^i] = I_{2(J-1)} \mqty[G_n^{i-1}\\ H_n^{i-1}] 
-+\mqty[\mathcal{H}_n^i\\ \mathcal{G}_n^i]
-+\mqty[S_n^{i-1}\\ T_n^{i-1}]
-\end{align}
-
-where
-\begin{align}
-	G_n^i = \mqty[g_n^{i,1}\\ g_n^{i,2} \\ \vdots \\ g_n^{i,J-1}]\qc 
-	G_n^{i-1} = \mqty[g_n^{i-1,1}\\ g_n^{i-1,2} \\ \vdots \\ g_n^{i-1,J-1}]\qc 
-	H_n^i = \mqty[h_n^{i,1}\\ h_n^{i,2} \\ \vdots \\ h_n^{i,J-1}]\qc 
-	H_n^{i-1} = \mqty[h_n^{i-1,1}\\ h_n^{i-1,2} \\ \vdots \\ h_n^{i-1,J-1}]
-\end{align}
-
-\begin{align}
-	\mathcal{G}_n^i = \mqty[a_1 g_n^{i,0}\\ O_{(J-3)\times 1} \\ b_{J-1} g_n^{i,J}]\qc
-	\mathcal{H}_n^i = \mqty[a_1 h_n^{i,0}\\ O_{(J-3)\times 1} \\ b_{J-1} h_n^{i,J}]\qc 
-	h_n^{i,J} = h_n(\sigma_i, \xi_J) = h_n(\sigma_i,\xi\st{max}) = 0
-\end{align}
-
-\begin{align}
-	A = \mqty[q & b_1 \\ a_2 & q & b_2 \\ & & & & \vdots \\ & & & & & a_{J-2}& q & b_{J-2}\\ &&&&&&a_{J-1}&q]\qc
-	\begin{cases}
-		a_j = (1-0.5/j)\dfrac{\Delta \sigma}{4n(\Delta \xi)^2} \\
-		b_j = (1+0.5/j)\dfrac{\Delta \sigma}{4n(\Delta \xi)^2} \\
-		q = -\dfrac{\Delta \sigma }{2n(\Delta \xi)^2}
-	\end{cases} j=1,2,\cdots, J-1
-\end{align}
-
-\begin{align}
-	B = -\Delta \sigma \alpha_n R\st{D} I_{J-1}
-\end{align}
-
-\begin{align}
-	S_n^{i-1} = \mqty[S_n^{i-1,1} \\ S_n^{i-1,2} \\ \vdots \\ S_n^{i-1,J-1}]\qc
-	T_n^{i-1} = \mqty[T_n^{i-1,1} \\ T_n^{i-1,2} \\ \vdots \\ T_n^{i-1,J-1}]
-\end{align}
-
-\begin{align}
-	S_n^{i-1,j} = \Delta \sigma n\frac{R\st{D}}{2l\st{D}}\qty[\frac12\sum_{m=1}^{n-1}(g_m^{i-1,j}g_{n-m}^{i-1,j}-h_m^{i-1,j}h_{n-m}^{i-1,j}) - \sum_{m=n+1}^M (g_{m-n}^{i-1,j} g_m^{i-1,j}+h_{m-n}^{i-1,j}h_m^{i-1,j})]\\
-	T_n^{i-1,j} = \Delta \sigma n\frac{R\st{D}}{2l\st{D}}\qty[\frac12\sum_{m=1}^{n-1}(h_m^{i-1,j}g_{n-m}^{i-1,j}+g_m^{i-1,j}h_{n-m}^{i-1,j}) + \sum_{m=n+1}^M (h_{m-n}^{i-1,j} g_m^{i-1,j}-g_{m-n}^{i-1,j}h_m^{i-1,j})]
-\end{align}
-
-\begin{align}
-	g_n^{i,0} = (1-\Delta\sigma  \alpha_n R\st{D})g_n^{i-1,0} + \frac{\Delta \sigma}{n(\Delta\xi)^2} (h_n^{i-1,1}-h_n^{i-1,0})+ S_n^{i-1,0}\\
-	h_n^{i,0} = (1-\Delta\sigma  \alpha_n R\st{D})h_n^{i-1,0} - \frac{\Delta \sigma}{n(\Delta\xi)^2} (g_n^{i-1,1}-g_n^{i-1,0}) + T_n^{i-1,0}
-\end{align}
 $$
-	(i=1,2,\cdots,I) \nonumber
-	$$
+\mathcal{G}_n^i = \mqty[\mathcal{G}_n^{i,0,\cdot}\\ \mathcal{G}_n^{i,1,\cdot}\\ \vdots\\
+\mathcal{G}_n^{i,J-1,\cdot}]
+\qc 
+\mathcal{G}_n^{i,j,\cdot} = \mqty[\mathcal{G}_n^{i,j,0}\\ \mathcal{G}_n^{i,j,1}\\ \vdots\\
+\mathcal{G}_n^{i,j,K-1}]
+\qc
+\mathcal{H}_n^i = \mqty[\mathcal{H}_n^{i,0,\cdot}\\ \mathcal{H}_n^{i,1,\cdot}\\ \vdots\\
+\mathcal{H}_n^{i,J-1,\cdot}]
+\qc 
+\mathcal{H}_n^{i,j,\cdot} = \mqty[\mathcal{H}_n^{i,j,0}\\ \mathcal{H}_n^{i,j,1}\\ \vdots\\
+\mathcal{H}_n^{i,j,K-1}]
+$$
+$$
+\vb{A}_n^i 
+= 
+\frac{\Delta\sigma\st{m}}{\uppi \gamma n (1+\sigma_{\mathrm{m}
+,i})^2(\Delta\chi)^2} \vb{A}_{n,\chi}
++
+\frac{\Delta\sigma\st{m}}{\uppi \gamma n (1+\sigma_{\mathrm{m}
+,i})^2(\Delta\psi)^2} \vb{A}_{n,\psi}
+$$
 
-\section{Crank-Nicolson Method}
-\begin{equation}
-\end{equation}
+$$
+\vb{A}_{n,\chi} 
+=
+\mqty[\vb{B}& &\vb{0}\\  &\ddots &\\ \vb{0}& &\vb{B}]_{JK \times JK}
+\qc
+\vb{B} = \mqty[-2&2&&&&0 \\ 1&-2&1 \\&&&\ddots \\&&&1&-2&1\\0 &&&&1&-2]_{
+K\times K}
+$$
 
-\subsection{Data Set: Kamakura 1989}
+$$
+\vb{A}_{n,\psi}
+=
+\mqty[-2\vb{I}_{K\times K} &2\vb{I}_{K\times K} &&&&\vb{0}_{K\times K}  \\
+\vb{I}_{K\times K} &-2\vb{I}_{K\times K} &\vb{I}_{K\times K} \\
+&&&\ddots \\&&&\vb{I}_{K\times K} &-2\vb{I}_{K\times K} &\vb{I}_{K\times K}\\
+\vb{0}_{K\times K}  &&&&\vb{I}_{K\times K} &-2\vb{I}_{K\times K} ]_{JK\times JK}
+$$
+
+
+
+
+\section{Test Data}
+\subsection{Circular Profile}
+\subsubsection{Kamakura 1989}
 \emph{Fig. 6}
 $$
 \Delta \sigma = 3\times 10^{-4}\qc \sigma\st{max} = 10\qc \Delta \xi = 0.03\qc \xi\st{max} = 6\qc T = 23.7 \celsius\qc h\st{r} = 65.2\%
@@ -400,5 +471,8 @@ $$
 $$
 a = 0.21\si{m}
 $$
+
+\bibliography{readme}
+
 \end{document}
 
