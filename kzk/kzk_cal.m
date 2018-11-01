@@ -76,7 +76,7 @@ end
 
 U = cell(M,1);
 for nn = 1:M
-	U{nn} = sparse(J+1,I+1); 
+	U{nn} = zeros(J+1,I+1); 
 end
 V = U;
 for ii = 1:I
