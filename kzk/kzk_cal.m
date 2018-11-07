@@ -85,17 +85,23 @@ for ii = 1:I
 	for nn = 1:M
 		for jj = 0:J-1
 			% use matrix multiplication to accelerate computations
-			GG1 = squeeze(G(jj+1,ii-1+1,1:nn-1));
+			GG1 = G(jj+1,ii-1+1,1:nn-1);
+			GG1 = GG1(:);
 			GG2 = flipud(GG1);
-			HH1 = squeeze(H(jj+1,ii-1+1,1:nn-1));
+			HH1 = H(jj+1,ii-1+1,1:nn-1);
+			HH1 = HH1(:);
 			HH2 = flipud(HH1);
 			Un = 1/2 * (GG1.' * GG2 - HH1.' * HH2);
 			Vn = HH1.' * GG2;
 				
-			GG1 = squeeze(G(jj+1,ii-1+1,1:M-nn)); % m-n
-			GG2 = squeeze(G(jj+1,ii-1+1,nn+1:M)); % m
-			HH1 = squeeze(H(jj+1,ii-1+1,1:M-nn)); % m-n
-			HH2 = squeeze(H(jj+1,ii-1+1,nn+1:M)); % m
+			GG1 = (G(jj+1,ii-1+1,1:M-nn)); % m-n
+			GG1 = GG1(:);
+			GG2 = (G(jj+1,ii-1+1,nn+1:M)); % m
+			GG2 = GG2(:);
+			HH1 = (H(jj+1,ii-1+1,1:M-nn)); % m-n
+			HH1 = HH1(:);
+			HH2 = (H(jj+1,ii-1+1,nn+1:M)); % m
+			HH2 = HH2(:);
 			Un = Un - (GG1.' * GG2 + HH1.' * HH2);
 			Vn = Vn + (HH1.' * GG2 - GG1.' * HH2);
 
