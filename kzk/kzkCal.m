@@ -1,5 +1,5 @@
-function [Lp,prsMag,prsPha] = kzk_cal(Dsig,sig_max,Dzeta,zeta_max,N0,N1,N2,M,c1,c2,...
-	alpha,RD0,lD0,LP0)
+function [prsLvl,prsMag,prsPha] = kzkCal(sigDel,sigMax,zetaDel,zetaMax,N0,N1,N2,M,c1,c2,...
+	sac,rayDistMid,lD0,LP0,wavnumMid)
 % =========================================================================
 % FUNCTION 	calculate the nonlienar pressure field based on the kzk 
 %			equation using the Implicit Backward Finite Difference
@@ -46,15 +46,16 @@ function [Lp,prsMag,prsPha] = kzk_cal(Dsig,sig_max,Dzeta,zeta_max,N0,N1,N2,M,c1,
 %	Version 			- 2.0
 % =========================================================================
 
-I = fix(sig_max/Dsig);
-n = (1:M).'; sig = linspace(0, sig_max, I+1)';
-J = fix(zeta_max/Dzeta);
-zeta = linspace(0,zeta_max, J+1)';
-j_a = fix(1/Dzeta);
+I = fix(sigMax/sigDel);
+n = (1:M).'; 
+sigLst = linspace(0, sigMax, I+1)';
+J = fix(zetaMax/zetaDel);
+zetaLst = linspace(0,zetaMax, J+1)';
+j_a = fix(1/zetaDel);
 
-am = (1-0.5./(1:J-1).') * (1./ n.') * Dsig/4/(Dzeta^2)*N0; % (J-1) x M
-ap = (1+0.5./(1:J-1).') * (1./ n.') * Dsig/4/(Dzeta^2)*N0; % (J-1) x M
-b = -(1./n) *Dsig/2/(Dzeta^2)*N0; % M x 1
+am = (1-0.5./(1:J-1).') * (1./ n.') * sigDel/4/(zetaDel^2)*N0; % (J-1) x M
+ap = (1+0.5./(1:J-1).') * (1./ n.') * sigDel/4/(zetaDel^2)*N0; % (J-1) x M
+b = -(1./n) *sigDel/2/(zetaDel^2)*N0; % M x 1
 A = cell(M,1);
 for nn = 1:M
 	bb = b(nn);
@@ -67,13 +68,13 @@ G = zeros(J+1, I+1, M);
 H = G;
 
 % boundary conditions
-G(0+1:j_a+1,0+1,N1) = c1*cos(N1/N0*zeta(0+1:j_a+1).^2);
-G(0+1:j_a+1,0+1,N2) = c2*cos(N2/N0*zeta(0+1:j_a+1).^2);
-H(0+1:j_a+1,0+1,N1) = c1*sin(N1/N0*zeta(0+1:j_a+1).^2);
-H(0+1:j_a+1,0+1,N2) = c2*sin(N2/N0*zeta(0+1:j_a+1).^2);
+G(0+1:j_a+1,0+1,N1) = c1*cos(N1/N0*zetaLst(0+1:j_a+1).^2);
+G(0+1:j_a+1,0+1,N2) = c2*cos(N2/N0*zetaLst(0+1:j_a+1).^2);
+H(0+1:j_a+1,0+1,N1) = c1*sin(N1/N0*zetaLst(0+1:j_a+1).^2);
+H(0+1:j_a+1,0+1,N2) = c2*sin(N2/N0*zetaLst(0+1:j_a+1).^2);
 B = cell(M,1);
 for nn = 1:M
-	B{nn} = sparse(-Dsig * 1^2 * alpha(nn) * RD0* eye(J));
+	B{nn} = sparse(-sigDel * 1^2 * sac(nn) * rayDistMid* eye(J));
 end
 
 U = cell(M,1);
@@ -81,66 +82,72 @@ for nn = 1:M
 	U{nn} = zeros(J+1,I+1); 
 end
 V = U;
-for ii = 1:I
+for iSig = 1:I
 	tic % start the stopwatch
-	fprintf('i = %s, I = %s\n', num2str(ii), num2str(I));
+	fprintf('i = %s, I = %s\n', num2str(iSig), num2str(I));
 	for nn = 1:M
 		for jj = 0:J-1
 			% use matrix multiplication to accelerate computations
-			GG1 = G(jj+1,ii-1+1,1:nn-1);
+			GG1 = G(jj+1,iSig-1+1,1:nn-1);
 			GG1 = GG1(:);
 			GG2 = flipud(GG1);
-			HH1 = H(jj+1,ii-1+1,1:nn-1);
+			HH1 = H(jj+1,iSig-1+1,1:nn-1);
 			HH1 = HH1(:);
 			HH2 = flipud(HH1);
 			Un = 1/2 * (GG1.' * GG2 - HH1.' * HH2);
 			Vn = HH1.' * GG2;
 				
-			GG1 = (G(jj+1,ii-1+1,1:M-nn)); % m-n
+			GG1 = (G(jj+1,iSig-1+1,1:M-nn)); % m-n
 			GG1 = GG1(:);
-			GG2 = (G(jj+1,ii-1+1,nn+1:M)); % m
+			GG2 = (G(jj+1,iSig-1+1,nn+1:M)); % m
 			GG2 = GG2(:);
-			HH1 = (H(jj+1,ii-1+1,1:M-nn)); % m-n
+			HH1 = (H(jj+1,iSig-1+1,1:M-nn)); % m-n
 			HH1 = HH1(:);
-			HH2 = (H(jj+1,ii-1+1,nn+1:M)); % m
+			HH2 = (H(jj+1,iSig-1+1,nn+1:M)); % m
 			HH2 = HH2(:);
 			Un = Un - (GG1.' * GG2 + HH1.' * HH2);
 			Vn = Vn + (HH1.' * GG2 - GG1.' * HH2);
 
-			Un = 1/N0*Un*Dsig*nn*RD0/2/lD0;
-			Vn = 1/N0*Vn*Dsig*nn*RD0/2/lD0;
+			Un = 1/N0*Un*sigDel*nn*rayDistMid/2/lD0;
+			Vn = 1/N0*Vn*sigDel*nn*rayDistMid/2/lD0;
 
-			U{nn}(jj+1,ii-1+1) = Un/(sig(ii-1+1)+1);
-			V{nn}(jj+1,ii-1+1) = Vn/(sig(ii-1+1)+1);
+			U{nn}(jj+1,iSig-1+1) = Un/(sigLst(iSig-1+1)+1);
+			V{nn}(jj+1,iSig-1+1) = Vn/(sigLst(iSig-1+1)+1);
 		end
 
-		AA = A{nn} / (sig(ii+1)+1)^2;
+		AA = A{nn} / (sigLst(iSig+1)+1)^2;
 		II = eye(2*(J)) - [B{nn}, AA; -AA, B{nn}];
 		% GH_ = II\(eye(2*(J)) * [G{nn}(0+1:J-1+1,ii-1+1);...
-		GH_ = II\(eye(2*(J)) * [G(0+1:J-1+1,ii-1+1,nn);...
+		GH_ = II\(eye(2*(J)) * [G(0+1:J-1+1,iSig-1+1,nn);...
 			   % H{nn}(0+1:J-1+1,ii-1+1)] + ...
-	   		H(0+1:J-1+1,ii-1+1,nn)] + ...
-			[U{nn}(0+1:J-1+1,ii-1+1);V{nn}(0+1:J-1+1,ii-1+1)]);
+	   		H(0+1:J-1+1,iSig-1+1,nn)] + ...
+			[U{nn}(0+1:J-1+1,iSig-1+1);V{nn}(0+1:J-1+1,iSig-1+1)]);
 		% G{nn}(0+1:J-1+1,ii+1) = GH_(1:J);
 		% H{nn}(0+1:J-1+1,ii+1) = GH_(J+1:end);
-		G(0+1:J-1+1,ii+1,nn) = GH_(1:J);
-		H(0+1:J-1+1,ii+1,nn) = GH_(J+1:end);
+		G(0+1:J-1+1,iSig+1,nn) = GH_(1:J);
+		H(0+1:J-1+1,iSig+1,nn) = GH_(J+1:end);
 	end
 	% end of the stopwatch
 	fprintf('Elapsed time is: %s\n', datestr(datenum(0,0,0,0,0,toc),...
 		'HH:MM:SS'));
 end
 
-PREF = 20e-6;
+PRS_REF = 20e-6;
 prsMag = cell(M,1);
-Lp = cell(M,1);
-p0 = 10^(LP0/20) * PREF;
+prsPha = cell(M,1);
+prsLvl = cell(M,1);
+p0 = 10^(LP0/20) * PRS_REF;
 for nn = 1:M
     prsMag{nn} = sqrt(abs(G(:,:,nn)).^2 + abs(H(:,:,nn)).^2);
-    for ii = 0:I
-        prsMag{nn}(:,ii+1) = p0*prsMag{nn}(:,ii+1)/(sig(ii+1)+1);
+    for iSig = 0:I
+        prsMag{nn}(:,iSig+1) = p0*prsMag{nn}(:,iSig+1)/(sigLst(iSig+1)+1);
+        for jZeta = 0:J
+            prsPha{nn}(jZeta+1,iSig+1) = -(wavnumMid * rayDistMid * ...
+                sigLst(iSig+1) + (zetaLst(jZeta+1))^2 * ...
+                (sigLst(iSig+1)+1)/N0 + atan2(G(jZeta+1,iSig+1,nn),...
+                H(jZeta+1,iSig+1,nn)));
+        end
     end
-    Lp{nn} = 20*log10(prsMag{nn}/sqrt(2)/PREF);
-%     Lp{nn} = Lp{nn} + LP0;
+    prsLvl{nn} = 20*log10(prsMag{nn}/sqrt(2)/PRS_REF);
 end
 

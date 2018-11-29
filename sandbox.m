@@ -7,6 +7,7 @@ addpath(sprintf('%s/kzk',pwd))
 addpath(sprintf('%s/kzk/fig',pwd))
 addpath(sprintf('%s/misc',pwd))
 addpath(sprintf('%s/efficiency',pwd));
+addpath(sprintf('%s/nah',pwd))
 
 %% figure settings
 fig_type = 'normal'; 
