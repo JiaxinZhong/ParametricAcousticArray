@@ -1,4 +1,4 @@
-function [Lp] = kzk_cal(Dsig,sig_max,Dzeta,zeta_max,N0,N1,N2,M,c1,c2,...
+function [Lp,prsMag,prsPha] = kzk_cal(Dsig,sig_max,Dzeta,zeta_max,N0,N1,N2,M,c1,c2,...
 	alpha,RD0,lD0,LP0)
 % =========================================================================
 % FUNCTION 	calculate the nonlienar pressure field based on the kzk 
@@ -37,6 +37,8 @@ function [Lp] = kzk_cal(Dsig,sig_max,Dzeta,zeta_max,N0,N1,N2,M,c1,c2,...
 % -------------------------------------------------------------------------
 % OUTPUT
 %	Lp		- sound power pressure of the harmonics in dB
+%   prsMag  - the magnitude of the pressure
+%   prsPha  - the phase of the pressure
 % -------------------------------------------------------------------------
 % VERSION INFO
 %	Author				- Jiaxin Zhong
@@ -129,15 +131,16 @@ for ii = 1:I
 		'HH:MM:SS'));
 end
 
-p = cell(M,1);
+PREF = 20e-6;
+prsMag = cell(M,1);
 Lp = cell(M,1);
+p0 = 10^(LP0/20) * PREF;
 for nn = 1:M
-    % p{nn} = sqrt(abs(G{nn}).^2 + abs(H{nn}).^2);
-    p{nn} = sqrt(abs(G(:,:,nn)).^2 + abs(H(:,:,nn)).^2);
+    prsMag{nn} = sqrt(abs(G(:,:,nn)).^2 + abs(H(:,:,nn)).^2);
     for ii = 0:I
-        p{nn}(:,ii+1) = p{nn}(:,ii+1)/(sig(ii+1)+1);
+        prsMag{nn}(:,ii+1) = p0*prsMag{nn}(:,ii+1)/(sig(ii+1)+1);
     end
-    Lp{nn} = 20*log10(p{nn}/sqrt(2));
-    Lp{nn} = Lp{nn} + LP0;
+    Lp{nn} = 20*log10(prsMag{nn}/sqrt(2)/PREF);
+%     Lp{nn} = Lp{nn} + LP0;
 end
 

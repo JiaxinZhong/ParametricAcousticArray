@@ -1,7 +1,7 @@
 %% Physical parameters
-Tc = 20;
-hr = 50;
-c0 = 331.6+0.6*Tc;
+Tc = 20;                    % 
+hr = 50;                    % relative humidity as a percentage
+c0 = 331.6+0.6*Tc;  
 rho0 = 1.2;
 a_rad = 0.1;
 beta = 1.2;
@@ -10,7 +10,7 @@ PREF = 20e-6;
 c1 = 1;
 c2 = 1;
 f1 = 60000; 
-fd = 500; % difference frequency
+fd = 1000;                  % difference frequency
 f2 = f1+fd;
 fb = gcd(f1,f2);
 M = fix(f2/fb*2+5);
@@ -32,7 +32,7 @@ Dsig = 3e-4;
 Dzeta = 2e-2;
 
 zeta_max = 15;
-z_max = 1; % [m]
+z_max = 1;                  % the maximal z [m]
 sig_max = z_max/RD0;
 % sig_max = 5;
 I = fix(sig_max/Dsig);
@@ -44,7 +44,7 @@ z = sig * RD0;
 n = (1:M)';
 f = (1:M).'*fb;
 alpha = cal_absorp_coeff(f, hr, Tc, 101.325);
-Lp = kzk_cal(Dsig,sig_max,Dzeta,zeta_max,N0,N1,N2,M,c1,c2,alpha,RD0,...
+[Lp,p] = kzk_cal(Dsig,sig_max,Dzeta,zeta_max,N0,N1,N2,M,c1,c2,alpha,RD0,...
 	lD0,LP0);
 
 
@@ -53,6 +53,7 @@ for i = 1:M
     if (N1~=i && N2~=i && (N1*2)~=i && (N2*2)~=i && (N1+N2)~=i ...
             && i~=Nd && i~=2*Nd && i~=3*Nd)
         Lp{i} = {};
+        p{i} = {};
     end
 end
 
@@ -63,7 +64,7 @@ xlabel('$z$ (m)')
 ylabel('SPL (dB)')
 
 print(sprintf('%s_cache.jpg', mfilename('fullpath')), '-djpeg', '-r300');
-save('kzk/data/kzk_cal_gen_cache.mat','Lp','RD0','sig','f0','N1','N2',...
+save('kzk/data/kzk_cal_gen_cache.mat','Lp','p','RD0','sig','f0','N1','N2',...
 	'N0','f1','f2','xi', 'Tc', 'hr', 'rho0', 'a_rad','fb','fd','Nd',...
 	'beta', 'LP0','f','zeta','sig_max','z_max',...
 	'alpha','I','J','Dsig','Dzeta','c0','M','PREF','z');
