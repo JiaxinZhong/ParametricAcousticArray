@@ -1,5 +1,5 @@
-function [prsLvl,prsMag,prsPha] = kzkCal(sigDel,sigMax,zetaDel,zetaMax,N0,N1,N2,M,c1,c2,...
-	sac,rayDistMid,lD0,LP0,wavnumMid)
+function [prsLvl,prsMag,prsPha] = kzkCal(sigDel,sigMax,zetaDel,zetaMax,...
+    N1,N2,M,c1,c2,sac,rayDistMid,lD0,LP0,wavnumMid)
 % =========================================================================
 % FUNCTION 	calculate the nonlienar pressure field based on the kzk 
 %			equation using the Implicit Backward Finite Difference
@@ -42,9 +42,12 @@ function [prsLvl,prsMag,prsPha] = kzkCal(sigDel,sigMax,zetaDel,zetaMax,N0,N1,N2,
 % -------------------------------------------------------------------------
 % VERSION INFO
 %	Author				- Jiaxin Zhong
-%	Last modified 		- October 6, 2018
-%	Version 			- 2.0
+%	Last modified 		- Nov 9, 2018
+%	Version 			- 2.1
 % =========================================================================
+
+NMid = (N1+N2)/2;
+NDiff = N2-N1;
 
 I = fix(sigMax/sigDel);
 n = (1:M).'; 
@@ -53,25 +56,26 @@ J = fix(zetaMax/zetaDel);
 zetaLst = linspace(0,zetaMax, J+1)';
 j_a = fix(1/zetaDel);
 
-am = (1-0.5./(1:J-1).') * (1./ n.') * sigDel/4/(zetaDel^2)*N0; % (J-1) x M
-ap = (1+0.5./(1:J-1).') * (1./ n.') * sigDel/4/(zetaDel^2)*N0; % (J-1) x M
-b = -(1./n) *sigDel/2/(zetaDel^2)*N0; % M x 1
+am = (1-0.5./(1:J-1).') * (1./ n.') * sigDel/4/(zetaDel^2)*NMid; % (J-1) x M
+ap = (1+0.5./(1:J-1).') * (1./ n.') * sigDel/4/(zetaDel^2)*NMid; % (J-1) x M
+b = -(1./n) *sigDel/2/(zetaDel^2)*NMid; % M x 1
 A = cell(M,1);
 for nn = 1:M
 	bb = b(nn);
 	amm = am(1:end,nn);
 	app = ap(1:end-1,nn);
-	A{nn} = sparse(diag([2*bb;bb*ones(J-1,1)]) + diag([-2*bb;app],1) + diag(amm,-1));
+	A{nn} = sparse(diag([2*bb;bb*ones(J-1,1)]) + diag([-2*bb;app],1) + ...
+        diag(amm,-1));
 end
 
 G = zeros(J+1, I+1, M);
 H = G;
 
 % boundary conditions
-G(0+1:j_a+1,0+1,N1) = c1*cos(N1/N0*zetaLst(0+1:j_a+1).^2);
-G(0+1:j_a+1,0+1,N2) = c2*cos(N2/N0*zetaLst(0+1:j_a+1).^2);
-H(0+1:j_a+1,0+1,N1) = c1*sin(N1/N0*zetaLst(0+1:j_a+1).^2);
-H(0+1:j_a+1,0+1,N2) = c2*sin(N2/N0*zetaLst(0+1:j_a+1).^2);
+G(0+1:j_a+1,0+1,N1) = c1*cos(N1/NMid*zetaLst(0+1:j_a+1).^2);
+G(0+1:j_a+1,0+1,N2) = c2*cos(N2/NMid*zetaLst(0+1:j_a+1).^2);
+H(0+1:j_a+1,0+1,N1) = c1*sin(N1/NMid*zetaLst(0+1:j_a+1).^2);
+H(0+1:j_a+1,0+1,N2) = c2*sin(N2/NMid*zetaLst(0+1:j_a+1).^2);
 B = cell(M,1);
 for nn = 1:M
 	B{nn} = sparse(-sigDel * 1^2 * sac(nn) * rayDistMid* eye(J));
@@ -108,8 +112,8 @@ for iSig = 1:I
 			Un = Un - (GG1.' * GG2 + HH1.' * HH2);
 			Vn = Vn + (HH1.' * GG2 - GG1.' * HH2);
 
-			Un = 1/N0*Un*sigDel*nn*rayDistMid/2/lD0;
-			Vn = 1/N0*Vn*sigDel*nn*rayDistMid/2/lD0;
+			Un = 1/NMid*Un*sigDel*nn*rayDistMid/2/lD0;
+			Vn = 1/NMid*Vn*sigDel*nn*rayDistMid/2/lD0;
 
 			U{nn}(jj+1,iSig-1+1) = Un/(sigLst(iSig-1+1)+1);
 			V{nn}(jj+1,iSig-1+1) = Vn/(sigLst(iSig-1+1)+1);
@@ -137,14 +141,20 @@ prsMag = cell(M,1);
 prsPha = cell(M,1);
 prsLvl = cell(M,1);
 p0 = 10^(LP0/20) * PRS_REF;
-for nn = 1:M
+
+N_RSV_LST = [(1:3)*NDiff, N1, N2, N1*2, N2*2, N1+N2, N1+NDiff, N2+NDiff];
+for nn = N_RSV_LST
+    % reserve the ultrasound and their sum frequency
+%     if (N1~=nn && N2~=nn && (N1*2)~=nn && (N2*2)~=nn && (N1+N2)~=nn ...
+%             && nn~=NDiff && nn~=2*NDiff && nn~=3*NDiff && ...
+%             nn~=4*NDiff && nn~=5*NDiff)
     prsMag{nn} = sqrt(abs(G(:,:,nn)).^2 + abs(H(:,:,nn)).^2);
     for iSig = 0:I
         prsMag{nn}(:,iSig+1) = p0*prsMag{nn}(:,iSig+1)/(sigLst(iSig+1)+1);
         for jZeta = 0:J
             prsPha{nn}(jZeta+1,iSig+1) = -(wavnumMid * rayDistMid * ...
                 sigLst(iSig+1) + (zetaLst(jZeta+1))^2 * ...
-                (sigLst(iSig+1)+1)/N0 + atan2(G(jZeta+1,iSig+1,nn),...
+                (sigLst(iSig+1)+1)/NMid + atan2(G(jZeta+1,iSig+1,nn),...
                 H(jZeta+1,iSig+1,nn)));
         end
     end
